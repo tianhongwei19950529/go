@@ -1,0 +1,7 @@
+2022-02-14T11:29:39.420+0800	error	04plug/main.go:43	Error fetching url..{url 15 0 www.google.com <nil>} {error 26 0  Get "www.google.com": unsupported protocol scheme ""}
+2022-02-14T11:29:39.464+0800	info	04plug/main.go:48	Success..{statusCode 15 0 200 OK <nil>} {url 15 0 http://www.baidu.com <nil>}
+2022-02-14T11:35:38.048+0800	error	04plug/main.go:51	Error fetching url..{url 15 0 www.google.com <nil>} {error 26 0  Get "www.google.com": unsupported protocol scheme ""}
+2022-02-14T11:35:38.108+0800	info	04plug/main.go:56	Success..{statusCode 15 0 200 OK <nil>} {url 15 0 http://www.baidu.com <nil>}
+2022-02-14T11:35:51.251+0800	error	04plug/main.go:51	Error fetching url..{url 15 0 www.google.com <nil>} {error 26 0  Get "www.google.com": unsupported protocol scheme ""}
+2022-02-14T11:35:51.299+0800	info	04plug/main.go:56	Success..{statusCode 15 0 200 OK <nil>} {url 15 0 http://www.baidu.com <nil>}
+2022-02-14T11:52:22.400+0800	info	04plug/main.go:75	___________________________________

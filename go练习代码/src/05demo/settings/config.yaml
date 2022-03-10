@@ -1,0 +1,18 @@
+app:
+  name: "web_app"
+  mode: "dev"
+  port: ":8080"
+
+log:
+  level: "DEBUG"
+  filename: "./web_app.log"
+  max_size: 200
+  max_day: 30
+  max_backups: 7
+
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  user: "root"
+  password: "123456"
+  dbname: "sql_test"
