@@ -40,7 +40,7 @@ const (
 )
 
 type IChecker interface {
-	check() error
+	check() (err error)
 }
 
 type NodeChecker struct {
@@ -51,7 +51,7 @@ type KVChecker struct {
 	v reflect.Value
 }
 
-func (c *NodeChecker) check() (err error) {
+func (c NodeChecker) check() (err error) {
 	// 检查待解析的结构体类型
 	//t := reflect.TypeOf(data)
 	t := c.v.Type()
@@ -63,7 +63,7 @@ func (c *NodeChecker) check() (err error) {
 	return err
 }
 
-func (c *KVChecker) check() (err error) {
+func (c KVChecker) check() (err error) {
 	// 检查kv是否是struct类型
 	//nodeType := reflect.TypeOf(c.v)
 	t := c.v.Type()
@@ -141,6 +141,13 @@ func getFieldByTag(v reflect.Value, tag string) (field reflect.Value) {
 	return
 }
 
+func doCheck(checker IChecker) (err error) {
+	if err = checker.check(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func loadIni(path string, data interface{}) (err error) {
 	// node --- input: nodeTag(field tag) nodeString(ini value)  middle: nodeType(field type)  output: nodeValue(field value)
 	var v reflect.Value
@@ -162,8 +169,7 @@ func loadIni(path string, data interface{}) (err error) {
 				continue
 			case KV:
 				tag, value := line.parse_k_v()
-				// 反射值对象调Type()方法得到反射类型对象
-				checker = &KVChecker{v}
+				checker = KVChecker{v}
 				if err = checker.check(); err != nil {
 					return err
 				}
@@ -201,7 +207,7 @@ func loadIni(path string, data interface{}) (err error) {
 				//	校验参数
 				// 传入的 data 参数是否是一个结构体指针类型（要对结构体进行字段补充）
 				v = reflect.ValueOf(data)
-				checker = &NodeChecker{v}
+				checker = NodeChecker{v}
 				if err = checker.check(); err != nil {
 					return err
 				}
