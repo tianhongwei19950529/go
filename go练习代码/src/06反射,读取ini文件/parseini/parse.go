@@ -32,12 +32,6 @@ type Line struct {
 	content string
 }
 
-type Checker struct {
-}
-
-type LineParser struct {
-}
-
 const (
 	COMMENT = iota
 	EMPTY
@@ -45,7 +39,41 @@ const (
 	KV
 )
 
-func (c *Checker) judge_line_kind(line Line) (kind int, err error) {
+type IChecker interface {
+	check() error
+}
+
+type NodeChecker struct {
+	v reflect.Value
+}
+
+type KVChecker struct {
+	v reflect.Value
+}
+
+func (c *NodeChecker) check() (err error) {
+	// 检查待解析的结构体类型
+	//t := reflect.TypeOf(data)
+	t := c.v.Type()
+	if t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Struct {
+		err = nil
+	} else {
+		err = fmt.Errorf("data[%v] should be a struct pointer", t.Name())
+	}
+	return err
+}
+
+func (c *KVChecker) check() (err error) {
+	// 检查kv是否是struct类型
+	//nodeType := reflect.TypeOf(c.v)
+	t := c.v.Type()
+	if t.Kind() != reflect.Struct {
+		err = fmt.Errorf("node[%v] is not struct", t.Name())
+	}
+	return err
+}
+
+func (line *Line) parse_kind() (kind int, err error) {
 	// 检查ini中每一行的类型
 	stripedLine := strings.TrimSpace(line.content)
 	if len(stripedLine) == 0 {
@@ -72,34 +100,14 @@ func (c *Checker) judge_line_kind(line Line) (kind int, err error) {
 	return kind, nil
 }
 
-func (c *Checker) check_node_type(data interface{}) (err error) {
-	// 检查待解析的结构体类型
-	t := reflect.TypeOf(data)
-	if t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Struct {
-		err = nil
-	} else {
-		err = fmt.Errorf("data[%v] should be a struct pointer", data)
-	}
-	return err
-}
-
-func (c *Checker) check_kv_type(nodeStruct reflect.Value) (err error) {
-	// 检查kv是否是struct类型
-	nodeType := reflect.TypeOf(nodeStruct)
-	if nodeType.Kind() != reflect.Struct {
-		err = fmt.Errorf("node[%v] is not struct", nodeType.Name())
-	}
-	return err
-}
-
-func (p *LineParser) parse_k_v(line Line) (k, v string) {
+func (line *Line) parse_k_v() (k, v string) {
 	idx := strings.Index(line.content, "=")
 	k = strings.TrimSpace(line.content[:idx])
 	v = strings.TrimSpace(line.content[idx+1:])
 	return k, v
 }
 
-func (p *LineParser) parse_node(line Line) (node string) {
+func (line *Line) parse_node() (node string) {
 	node = strings.TrimSpace(line.content)[1 : len(line.content)-1]
 	return node
 }
@@ -130,15 +138,13 @@ func getFieldByTag(v reflect.Value, tag string) (field reflect.Value) {
 			field = v.FieldByName(fieldName)
 		}
 	}
-
 	return
 }
 
 func loadIni(path string, data interface{}) (err error) {
 	// node --- input: nodeTag(field tag) nodeString(ini value)  middle: nodeType(field type)  output: nodeValue(field value)
-	checker := Checker{}
-	parser := LineParser{}
-	var nodeStruct reflect.Value
+	var v reflect.Value
+	var checker IChecker
 	// 1.读文件，得到字节类型，转化为字符串
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -150,17 +156,18 @@ func loadIni(path string, data interface{}) (err error) {
 	lineSlice := strings.Split(string(b), "\n")
 	for idx, lineStr := range lineSlice {
 		line := Line{no: idx, content: lineStr}
-		if kind, e := checker.judge_line_kind(line); e == nil {
+		if kind, e := line.parse_kind(); e == nil {
 			switch kind {
 			case COMMENT, EMPTY:
 				continue
 			case KV:
-				tag, value := parser.parse_k_v(line)
+				tag, value := line.parse_k_v()
 				// 反射值对象调Type()方法得到反射类型对象
-				if err = checker.check_kv_type(nodeStruct); err != nil {
+				checker = &KVChecker{v}
+				if err = checker.check(); err != nil {
 					return err
 				}
-				field := getFieldByTag(nodeStruct, tag)
+				field := getFieldByTag(v, tag)
 				// 赋值
 				switch field.Type().Kind() {
 				case reflect.String:
@@ -193,11 +200,13 @@ func loadIni(path string, data interface{}) (err error) {
 			case NODE:
 				//	校验参数
 				// 传入的 data 参数是否是一个结构体指针类型（要对结构体进行字段补充）
-				if err = checker.check_node_type(data); err != nil {
+				v = reflect.ValueOf(data)
+				checker = &NodeChecker{v}
+				if err = checker.check(); err != nil {
 					return err
 				}
-				nodeTagString := parser.parse_node(line)
-				nodeStruct = getFieldByTag(reflect.ValueOf(data), nodeTagString)
+				nodeTagString := line.parse_node()
+				v = getFieldByTag(v, nodeTagString)
 			}
 		}
 	}
