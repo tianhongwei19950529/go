@@ -41,6 +41,7 @@ const (
 
 type IChecker interface {
 	check() (err error)
+	setV(v reflect.Value)
 }
 
 type NodeChecker struct {
@@ -63,6 +64,10 @@ func (c NodeChecker) check() (err error) {
 	return err
 }
 
+func (c *NodeChecker) setV(v reflect.Value) {
+	(*c).v = v
+}
+
 func (c KVChecker) check() (err error) {
 	// 检查kv是否是struct类型
 	//nodeType := reflect.TypeOf(c.v)
@@ -71,6 +76,10 @@ func (c KVChecker) check() (err error) {
 		err = fmt.Errorf("node[%v] is not struct", t.Name())
 	}
 	return err
+}
+
+func (c *KVChecker) setV(v reflect.Value) { // 法克！！！Fuck 指针赋值！！！
+	(*c).v = v
 }
 
 func (line *Line) parse_kind() (kind int, err error) {
@@ -141,17 +150,15 @@ func getFieldByTag(v reflect.Value, tag string) (field reflect.Value) {
 	return
 }
 
-func doCheck(checker IChecker) (err error) {
-	if err = checker.check(); err != nil {
-		return err
-	}
-	return nil
+func doCheck(checker IChecker, v reflect.Value) (err error) {
+	checker.setV(v)
+	err = checker.check()
+	return
 }
 
 func loadIni(path string, data interface{}) (err error) {
 	// node --- input: nodeTag(field tag) nodeString(ini value)  middle: nodeType(field type)  output: nodeValue(field value)
 	var v reflect.Value
-	var checker IChecker
 	// 1.读文件，得到字节类型，转化为字符串
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -169,9 +176,9 @@ func loadIni(path string, data interface{}) (err error) {
 				continue
 			case KV:
 				tag, value := line.parse_k_v()
-				checker = KVChecker{v}
-				if err = checker.check(); err != nil {
-					return err
+				if err = doCheck(new(KVChecker), v); err != nil {
+					//if err = doCheck(&KVChecker{}, v); err != nil {  // 被指针赋值坑了
+					return
 				}
 				field := getFieldByTag(v, tag)
 				// 赋值
@@ -205,11 +212,9 @@ func loadIni(path string, data interface{}) (err error) {
 				}
 			case NODE:
 				//	校验参数
-				// 传入的 data 参数是否是一个结构体指针类型（要对结构体进行字段补充）
 				v = reflect.ValueOf(data)
-				checker = NodeChecker{v}
-				if err = checker.check(); err != nil {
-					return err
+				if err = doCheck(new(NodeChecker), v); err != nil {
+					return
 				}
 				nodeTagString := line.parse_node()
 				v = getFieldByTag(v, nodeTagString)
