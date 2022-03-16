@@ -39,7 +39,7 @@ func hasKeyMap() {
 }
 
 func deleteMap(map1 map[string]int) map[string]int {
-	delete(map1, "fhuewqoafh")
+	delete(map1, "12")
 	return map1
 }
 
@@ -86,18 +86,18 @@ func forOrderMap() {
 	}
 }
 
-func createMapSlice()  {
-	Mapslice := make([]map[string]string,10)
+func createMapSlice() {
+	Mapslice := make([]map[string]string, 10)
 	//Map1 := make(map[string]string,3)
 	//Map1["name"] = "thw"
 	//Mapslice =append(Mapslice,Map1)
 	//fmt.Println(Mapslice[0]["name"])
-	Mapslice[0] =make(map[string]string,5)
-	Mapslice[0]["name"]="beijing"
+	Mapslice[0] = make(map[string]string, 5)
+	Mapslice[0]["name"] = "beijing"
 	fmt.Println(Mapslice[0])
 }
 
-func createSliceMap()  {
+func createSliceMap() {
 	var sliceMap = make(map[string][]string, 3)
 	fmt.Println(sliceMap)
 	fmt.Println("after init")
@@ -109,8 +109,8 @@ func createSliceMap()  {
 	//value = append(value, "北京", "上海")
 	//sliceMap[key] = value
 	for _, i2 := range sliceMap {
-		if i2 == nil{
-			i2 =make([]string,8)
+		if i2 == nil {
+			i2 = make([]string, 8)
 		}
 	}
 	fmt.Println(sliceMap)
@@ -130,30 +130,30 @@ func zuoye1() {
 	fmt.Println(strMap)
 }
 
-func zuoye2()  {
+func zuoye2() {
 	type Map map[string][]int
 	m := make(Map)
 	s := []int{1, 2}
 	s = append(s, 3)
-	fmt.Printf("%+v\n", s)//{1,2,3}
-	m["q1mi"] = s                 //{"qimi":[1,2,3]}
+	fmt.Printf("%+v\n", s) //{1,2,3}
+	m["q1mi"] = s          //{"qimi":[1,2,3]}
 	fmt.Println(m)
 	s = append(s[:1], s[2:]...)
-	fmt.Printf("%+v\n", s)  //[1,3]
-	fmt.Printf("%+v\n", m["q1mi"])//{"qimi":[1,3,3]}
+	fmt.Printf("%+v\n", s)         //[1,3]
+	fmt.Printf("%+v\n", m["q1mi"]) //{"qimi":[1,3,3]}
 }
 func main() {
 	//initMap()
 	//hasKeyMap()
-	//var b = map[string]int{
-	//	"123":123,
-	//	"321":321,
-	//	"12":12,
-	//}
-	//fmt.Println(b)
-	//deleteMap(b)
+	var b = map[string]int{
+		"123": 123,
+		"321": 321,
+		"12":  12,
+	}
+	fmt.Println(b)
+	deleteMap(b)
 	//b["123"] = 1234
-	//fmt.Println(b)
+	fmt.Println(b)
 	//forMap()
 	//forOrderMap()
 	//zuoye1()
