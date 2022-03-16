@@ -1,25 +1,29 @@
 package main
 
+import "fmt"
+
 func lengthOfLongestSubstring(s string) int {
+	/*
+		1. 需要一个哈希集合 记录字符串是不是出现过
+		2. 需要左右指针,左指针是for循环中的i代表,右指针必须有变量代表.
+		3. 不需要每次都重新移动右指针
+		4. 每一次都要记录最大值
+	*/
 	// 哈希集合，记录每个字符是否出现过
 	m := map[byte]int{}
 	n := len(s)
-	// 右指针，初始值为 -1，相当于我们在字符串的左边界的左侧，还没有开始移动
-	rk, ans := -1, 0
+	right, count := -1, 0
 	for i := 0; i < n; i++ {
 		if i != 0 {
-			// 左指针向右移动一格，移除一个字符
 			delete(m, s[i-1])
 		}
-		for rk + 1 < n && m[s[rk+1]] == 0 {
-			// 不断地移动右指针
-			m[s[rk+1]]++
-			rk++
+		for right+1 < n && m[s[right+1]] == 0 {
+			m[s[right+1]]++
+			right++
 		}
-		// 第 i 到 rk 个字符是一个极长的无重复字符子串
-		ans = max(ans, rk - i + 1)
+		count = max(count, right-i+1)
 	}
-	return ans
+	return count
 }
 
 func max(x, y int) int {
@@ -27,4 +31,9 @@ func max(x, y int) int {
 		return y
 	}
 	return x
+}
+
+func main() {
+	s := "abcabcbb"
+	fmt.Println(lengthOfLongestSubstring(s))
 }
