@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -45,6 +46,7 @@ func tsftime(timestamp int64) {
 func main3() {
 	now := time.Now()                            // 当前时间 Time 对象
 	later := now.Add(time.Hour).Add(time.Minute) // 运算之后的 Time 对象
+	fmt.Println(now.AddDate(1, 1, 0))
 	sub := now.Sub(later)
 	dur := later.Sub(now) // 做减法的时间间隔 Duration，和 Add 之间的类型一样(int64别名)
 	fmt.Println(sub)
@@ -55,7 +57,7 @@ func main3() {
 	fmt.Println(later.Equal(later))
 }
 
-// 定时器
+// 周期定时器 tick，类似 beat
 func main4(wg *sync.WaitGroup) {
 	ticker := time.Tick(time.Second)
 	t := 0
@@ -82,15 +84,49 @@ func strptime() {
 	fmt.Println(timeObj, err)
 }
 
+// 定时器 timer，只能响应一次；可停止、重置等
+func main5() {
+	timer1 := time.NewTimer(2 * time.Second)
+	t1 := time.Now()
+	fmt.Printf("t1:%v\n", t1)
+	// go func() {
+	go func() {
+		t2 := <-timer1.C // C means channel
+		fmt.Printf("t2:%v\n", t2)
+	}()
+
+	// timer1 可以被停止，必须在定时器走完之前停止
+	go func() {
+		time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
+		b := timer1.Stop() // 定时器走完返回false，否则停止并返回true
+		fmt.Println(b)
+		if b {
+			fmt.Println("time1 has been stop")
+		} else {
+			timer1.Reset(1 * time.Second)
+			fmt.Println("reset now..", time.Now())
+			fmt.Println(<-timer1.C)
+		}
+	}()
+
+	// 还可以用 time.After
+
+	<-time.After(3 * time.Second)
+	t3 := time.Now()
+	fmt.Printf("t2:%v\n", t3)
+
+}
+
 func main() {
-	//main1()
-	//main2()
-	//tsftime(time.Now().Unix())
-	//main3()
-	//wg := sync.WaitGroup{}
-	//wg.Add(1)
-	//go main4(&wg)
-	//strftime()
-	//wg.Wait()
+	// main1()
+	// main2()
+	// tsftime(time.Now().Unix())
+	// main3()
+	// wg := sync.WaitGroup{}
+	// wg.Add(1)
+	// go main4(&wg)
+	// strftime()
+	// wg.Wait()
 	strptime()
+	main5()
 }

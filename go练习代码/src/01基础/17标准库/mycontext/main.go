@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 )
 
 // 利用 sync.Group 实现协程同步
-//WaitGroup内部实现了一个计数器，用来记录未完成的操作个数，它提供了三个方法：
-//Add()用来添加计数。
-//Done()用来在操作结束时调用，使计数减一。
-//Wait()用来等待所有的操作结束，即计数变为0，该函数会在计数不为0时等待，在计数为0时立即返回。
+// WaitGroup内部实现了一个计数器，用来记录未完成的操作个数，它提供了三个方法：
+// Add()用来添加计数。
+// Done()用来在操作结束时调用，使计数减一。
+// Wait()用来等待所有的操作结束，即计数变为0，该函数会在计数不为0时等待，在计数为0时立即返回。
 
 var wg sync.WaitGroup
 var exit bool
@@ -73,7 +74,7 @@ func worker2(stopCh chan struct{}) {
 // Deadline 设置截止时间，到该时间点便会自动 cancel
 // Timeout 超时自动取消
 
-//func worker3(ctx context.Context) {
+// func worker3(ctx context.Context) {
 //	for {
 //		select {
 //		case <-ctx.Done(): // cancel 调用后，这个case会疯狂执行，一直能收到数据
@@ -87,7 +88,7 @@ func worker2(stopCh chan struct{}) {
 //			time.Sleep(time.Second * 3)
 //		}
 //	}
-//}
+// }
 
 func worker3(ctx context.Context) {
 LOOP:
@@ -120,7 +121,7 @@ func main3() {
 // WithDeadline
 func main4() {
 	d := time.Now().Add(500 * time.Millisecond) // time.Now().Add()是什么鬼？当前时间多久之后嘛
-	//ctx, _ := context.WithDeadline(context.Background(), d)
+	// ctx, _ := context.WithDeadline(context.Background(), d)
 	ctx, cancel := context.WithDeadline(context.Background(), d)
 	// 尽管 ctx 会过期，但在任何情况下调用它的 cancel 函数都是很好的实践
 	// 如果不这样做，可能会使上下文及其父类存活的时间超过必要的时间
@@ -141,16 +142,103 @@ func main5() {
 	defer cancel()
 	wg.Add(1)
 	go worker3(ctx)
-	//cancel()
+	// cancel()
 	time.Sleep(10 * time.Second)
 	wg.Wait()
 	fmt.Println("over")
 }
 
+// 互斥锁
+var x int64
+var swg sync.WaitGroup
+var lock sync.Mutex
+
+func add() {
+	for i := 0; i < 10000; i++ {
+		lock.Lock() // 不加锁，每次打出的x都是不一样的
+		x = x + 1
+		lock.Unlock()
+	}
+	swg.Done()
+}
+
+func main6() {
+	num := 1000
+	swg.Add(num)
+	for i := 0; i < num; i++ {
+		go add()
+	}
+	swg.Wait()
+	fmt.Println(x)
+}
+
+// 读写互斥锁 sync.RWMutex
+
+func main7() {
+	var wwg sync.WaitGroup
+	var rwlock sync.RWMutex
+	go func() { // 默认写
+		rwlock.Lock()
+		time.Sleep(time.Second)
+		rwlock.Unlock()
+		wwg.Done()
+	}()
+	wwg.Add(1)
+	go func() { // 读
+		rwlock.RLock()
+		time.Sleep(time.Second)
+		rwlock.RUnlock()
+		wwg.Done()
+	}()
+	wwg.Add(1)
+	wwg.Wait()
+}
+
+// sync.Once 高并发场景下只执行一次，例如只加载一次的配置文件，只关闭一次的通道等
+// var icons map[string]image.Image
+//
+// var loadIconsOnce sync.Once
+//
+// func loadIcons() {
+// 	icons = map[string]image.Image{
+// 		"left":  loadIcon("left.png"),
+// 		"up":    loadIcon("up.png"),
+// 		"right": loadIcon("right.png"),
+// 		"down":  loadIcon("down.png"),
+// 	}
+// }
+//
+// // Icon 是并发安全的
+// func Icon(name string) image.Image {
+// 	loadIconsOnce.Do(loadIcons)
+// 	return icons[name]
+// }
+
+// sync.Map 线程安全的map
+
+func main8() {
+	wg := sync.WaitGroup{}
+	var m sync.Map
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func(i int) {
+			key := strconv.Itoa(i)
+			m.Store(key, i)
+			value, _ := m.Load(key)
+			fmt.Printf("k:%v, v:=%v\n", key, value)
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+}
+
 func main() {
-	//main1()
-	//main2()
-	//main3()
-	//main4()
-	main5()
+	// main1()
+	// main2()
+	// main3()
+	// main4()
+	// main5()
+	// main6()
+	// main7()
+	main8()
 }
