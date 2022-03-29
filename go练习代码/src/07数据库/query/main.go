@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// rows, err := db.Query()	// 查询单条，不返回错误
-// row, err := db.QueryRow()  // 查询多条，不返回错误
+// rows, err := db.Query()	// 查询多条，不返回错误
+// row, err := db.QueryRow()  // 查询单条，不返回错误
 // rows.Next()
 // rows.Scan()
 // err = rowsx, err := db.Queryx()	// 查询单条，不返回错误
