@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+<<<<<<< HEAD
 	"math/rand"
+=======
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 	"sync"
 	"time"
 )
@@ -46,7 +49,10 @@ func tsftime(timestamp int64) {
 func main3() {
 	now := time.Now()                            // 当前时间 Time 对象
 	later := now.Add(time.Hour).Add(time.Minute) // 运算之后的 Time 对象
+<<<<<<< HEAD
 	fmt.Println(now.AddDate(1, 1, 0))
+=======
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 	sub := now.Sub(later)
 	dur := later.Sub(now) // 做减法的时间间隔 Duration，和 Add 之间的类型一样(int64别名)
 	fmt.Println(sub)
@@ -57,7 +63,11 @@ func main3() {
 	fmt.Println(later.Equal(later))
 }
 
+<<<<<<< HEAD
 // 周期定时器 tick，类似 beat
+=======
+// 定时器
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 func main4(wg *sync.WaitGroup) {
 	ticker := time.Tick(time.Second)
 	t := 0
@@ -84,6 +94,7 @@ func strptime() {
 	fmt.Println(timeObj, err)
 }
 
+<<<<<<< HEAD
 // 定时器 timer，只能响应一次；可停止、重置等
 func main5() {
 	timer1 := time.NewTimer(2 * time.Second)
@@ -129,4 +140,17 @@ func main() {
 	// wg.Wait()
 	strptime()
 	main5()
+=======
+func main() {
+	//main1()
+	//main2()
+	//tsftime(time.Now().Unix())
+	//main3()
+	//wg := sync.WaitGroup{}
+	//wg.Add(1)
+	//go main4(&wg)
+	//strftime()
+	//wg.Wait()
+	strptime()
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 }

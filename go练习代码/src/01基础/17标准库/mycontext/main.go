@@ -3,16 +3,26 @@ package main
 import (
 	"context"
 	"fmt"
+<<<<<<< HEAD
 	"strconv"
+=======
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 	"sync"
 	"time"
 )
 
 // 利用 sync.Group 实现协程同步
+<<<<<<< HEAD
 // WaitGroup内部实现了一个计数器，用来记录未完成的操作个数，它提供了三个方法：
 // Add()用来添加计数。
 // Done()用来在操作结束时调用，使计数减一。
 // Wait()用来等待所有的操作结束，即计数变为0，该函数会在计数不为0时等待，在计数为0时立即返回。
+=======
+//WaitGroup内部实现了一个计数器，用来记录未完成的操作个数，它提供了三个方法：
+//Add()用来添加计数。
+//Done()用来在操作结束时调用，使计数减一。
+//Wait()用来等待所有的操作结束，即计数变为0，该函数会在计数不为0时等待，在计数为0时立即返回。
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 
 var wg sync.WaitGroup
 var exit bool
@@ -74,7 +84,11 @@ func worker2(stopCh chan struct{}) {
 // Deadline 设置截止时间，到该时间点便会自动 cancel
 // Timeout 超时自动取消
 
+<<<<<<< HEAD
 // func worker3(ctx context.Context) {
+=======
+//func worker3(ctx context.Context) {
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 //	for {
 //		select {
 //		case <-ctx.Done(): // cancel 调用后，这个case会疯狂执行，一直能收到数据
@@ -88,7 +102,11 @@ func worker2(stopCh chan struct{}) {
 //			time.Sleep(time.Second * 3)
 //		}
 //	}
+<<<<<<< HEAD
 // }
+=======
+//}
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 
 func worker3(ctx context.Context) {
 LOOP:
@@ -121,7 +139,11 @@ func main3() {
 // WithDeadline
 func main4() {
 	d := time.Now().Add(500 * time.Millisecond) // time.Now().Add()是什么鬼？当前时间多久之后嘛
+<<<<<<< HEAD
 	// ctx, _ := context.WithDeadline(context.Background(), d)
+=======
+	//ctx, _ := context.WithDeadline(context.Background(), d)
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 	ctx, cancel := context.WithDeadline(context.Background(), d)
 	// 尽管 ctx 会过期，但在任何情况下调用它的 cancel 函数都是很好的实践
 	// 如果不这样做，可能会使上下文及其父类存活的时间超过必要的时间
@@ -142,12 +164,17 @@ func main5() {
 	defer cancel()
 	wg.Add(1)
 	go worker3(ctx)
+<<<<<<< HEAD
 	// cancel()
+=======
+	//cancel()
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 	time.Sleep(10 * time.Second)
 	wg.Wait()
 	fmt.Println("over")
 }
 
+<<<<<<< HEAD
 // 互斥锁
 var x int64
 var swg sync.WaitGroup
@@ -241,4 +268,12 @@ func main() {
 	// main6()
 	// main7()
 	main8()
+=======
+func main() {
+	//main1()
+	//main2()
+	//main3()
+	//main4()
+	main5()
+>>>>>>> e1ba3013c3a2ca15e1a71d8865d02cdb2404e39f
 }

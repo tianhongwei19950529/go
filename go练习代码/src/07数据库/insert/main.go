@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+// result, err := db.Exec()
+// result := db.MustExec()
+// result.LastInsertId()
+// result.RowsAffected()
 func main() {
 	db := sqlx.MustConnect("mysql", "root:123456@(127.0.0.1)/sql_test?charset=utf8mb4&parseTime=True&loc=Local")
 	schema := `create table if not exists place (
@@ -15,7 +19,7 @@ func main() {
 		city varchar(128) null,
 		create_time timestamp not null default current_timestamp,
 		update_time timestamp not null default current_timestamp on update current_timestamp,
-		telcode int(32));`
+		telcode int(32) unsigned);`
 	result, err := db.Exec(schema)
 	if err != nil {
 		fmt.Println("create table err...")
@@ -40,4 +44,7 @@ func main() {
 	result = db.MustExec(countryTimeCity, "China", "Aomen", 1234, time.Now().AddDate(1, 2, 0))
 	fmt.Println(result.LastInsertId())
 	fmt.Println(result.RowsAffected())
+
+	// 插入 Null
+	// 为了保证你所插入的值能如你所期望是NULL值，一定记得要将sql.Null***中Valid值置为false
 }

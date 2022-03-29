@@ -6,6 +6,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// db := sqlx.Open()
+// db.Ping()
+// sqlx.Connect()
+// sqlx.MustConnect()
+
 func main() {
 	var db *sqlx.DB
 	// 打开
