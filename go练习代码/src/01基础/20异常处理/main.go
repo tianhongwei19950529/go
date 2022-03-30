@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
+	"time"
 )
 
 // Golang 没有结构化异常，使用 panic 抛出错误，recover 捕获错误。
@@ -151,6 +153,48 @@ func main7() {
 	})
 }
 
+// 自定义异常
+
+type PathError struct {
+	path       string
+	op         string
+	createTime string
+	message    string
+}
+
+func (p *PathError) Error() string {
+	return fmt.Sprintf("path=%s	\nop=%s	\ncreateTime=%s	\nmessage=%s", p.path, p.op, p.createTime, p.message)
+}
+
+func Open(filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return &PathError{
+			path:       filename,
+			op:         "read",
+			message:    err.Error(),
+			createTime: fmt.Sprintf("%v", time.Now()),
+		}
+	}
+	defer file.Close()
+	return nil
+}
+
+func main8() {
+	err := Open("./main.go")
+	switch v := err.(type) {
+	// switch 类型断言
+	case *PathError:
+		fmt.Println("aaa", v)
+	default:
+
+	}
+	if pe, ok := err.(*PathError); ok { // 类型断言
+		// pe := err.(*PathError) 	// 类型断言，出错直接panic
+		fmt.Println("bbb")
+		fmt.Println(pe)
+	}
+}
 func main() {
 	// main1()
 	// main2()
@@ -160,5 +204,6 @@ func main() {
 	// main5(4, 0)
 	// main6(10, 1)
 	// main6(10, 0)
-	main7()
+	// main7()
+	main8()
 }
