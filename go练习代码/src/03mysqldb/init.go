@@ -1,3 +1,3 @@
-package _7数据库
+package _3mysqldb
 
 // http://jmoiron.github.io/sqlx/
