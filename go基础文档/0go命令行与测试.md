@@ -26,12 +26,13 @@ github go项目仓库中，**通常只包含一个模块**，但其实多个也�
 # go.mod 内容
 
 ```
-module github.com/xxx/asd      // 第一行，该模块的模块路径
+module github.com/xxx/asd      // 第一行，该模块的模块路径(包名)
 
 go 1.5          // 第二行，go版本
 
-require (
-    
+require (       // 依赖包及版本
+    github.com/satori/go.uuid v1.2.0
+	google.golang.org/appengine v1.6.1 // indirect   // indirect 表示间接引用
 )
 ```
 
@@ -100,6 +101,49 @@ func main() {
 移除下载：`go clean -modcache`
 
 镜像代理：`go env -w GO111MODULE=on`  `go env -w GOPROXY=https://goproxy.cn,direct`，设置完成之后最好在重启一下终端，如果出警告设置之前先执行`unset GOPROXY`
+
+
+# GO项目维护
+有两种模式，一个是 GO MODULE(go mod)模式，另一种是 GO PATH(go path) 模式。新项目基本全是 GO MODULE 模式，老项目有些是 GO PATH 模式。
+
+## 全局环境路径
+### GOROOT
+- goroot/src 下是go本身的包
+- go mod 模式下，gopath/pkg/mod/ 找不到的包会从 goroot/src 下面找
+- go path 模式下，gopath/src/ 里面不存在的包也会从 goroot/src 下面找
+
+## GOPATH
+- 无论是 go mod 还是 go path 模式，此目录需要有
+- go mod 模式，第三方依赖包会安装在 gopath/pkg/mod 下
+- go path 模式，第三方依赖包会安装在 gopath/src 下
+
+
+## go path 模式冲突
+go mod 的代码可以随意安放，它指定了包名，依赖包都在此包名下，不会冲突。
+
+go path diamante都放在 gopath/src 下，如果两个项目，都有同一个包，代码混在一起.....
+
+
+### 本地依赖包冲突
+将代码克隆到任意目录，发现本地依赖的包有问题，因为都从全局的 gopath/src 去包含了，而你的代码不在 gopath/src 下
+
+![img.png](img.png)
+
+解决方法：设置项目的 go path
+
+![img_1.png](img_1.png)
+
+
+### github 依赖包冲突
+直接 go get，你会发现下载在当前项目目录下 gopath/src下，这对本项目是没什么的，因为全局 gopath和 goroot 找不到，还会到项目 gopath 去找。
+
+解决方式直接开新终端去下在，就会下载到全局 gopath/src 下面了
+
+# 依赖包到项目目录下
+
+vender 机制：go在1.5之后开始支持，查找某依赖包，会现在项目根目录下的 vender 文件夹中查找，如果找不到就去 gopath/src 目录下找
+
+命令 `go vendor` 能将所有依赖导出到 vendor 下！！！
 
 
 # 测试
