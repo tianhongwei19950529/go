@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
@@ -12,9 +13,9 @@ type User struct {
 	Name string
 }
 
-//func (u User) Value() (driver.Value, error) {
+// func (u User) Value() (driver.Value, error) {
 //	return []interface{}{u.Name, u.Age}, nil
-//}
+// }
 
 var db *sqlx.DB
 
@@ -26,7 +27,7 @@ func InitSql() {
 	}
 }
 
-//查询单挑记录
+// 查询单挑记录
 func queryOneRow() {
 	var user User
 	sql := "select * from user where id = ?"
@@ -37,7 +38,7 @@ func queryOneRow() {
 	fmt.Println(user)
 }
 
-//查询多条记录
+// 查询多条记录
 func queryMore() {
 	var use []User
 	sql := "select * from user where id > ?"
@@ -74,43 +75,44 @@ func deleteDemo() {
 	}
 	fmt.Println(row.RowsAffected())
 }
+
 //
 func BatchInsertUsers3(user []*User) error {
-	//sql := "insert into user(name,age) value (:name,:age)"
+	// sql := "insert into user(name,age) value (:name,:age)"
 	sql := "INSERT INTO user (name, age) VALUES (:name, :age)"
 	rows, err := db.NamedExec(sql, user)
 	fmt.Println(rows.RowsAffected())
 	return err
 }
 
-func QueryByIDs(ids []int) (user []User,err error) {
+func QueryByIDs(ids []int) (user []User, err error) {
 	sql := "select id,name,age from user where id in (?)"
-	query,args ,err := sqlx.In(sql,ids)
+	query, args, err := sqlx.In(sql, ids)
 	if err != nil {
 		return
 	}
 	query = db.Rebind(query)
-	err = db.Select(&user,query,args...)
+	err = db.Select(&user, query, args...)
 	return
 }
 func main() {
 	InitSql()
 	defer db.Close()
-	//queryOneRow()
-	//queryMore()
-	//insertDemo()
-	//updateDemo()
-	//deleteDemo()
-	//u1 := User{Name: "xx", Age: 18}
-	//u2 := User{Name: "xxx", Age: 28}
-	//u3 := User{Name: "xxxx", Age: 38}
-	//var u []User
-	//u = []*User{&u1, &u2, &u3}
-	//err := BatchInsertUsers3(u)
-	//if err != nil {
+	// queryOneRow()
+	// queryMore()
+	// insertDemo()
+	// updateDemo()
+	// deleteDemo()
+	// u1 := User{Name: "xx", Age: 18}
+	// u2 := User{Name: "xxx", Age: 28}
+	// u3 := User{Name: "xxxx", Age: 38}
+	// var u []User
+	// u = []*User{&u1, &u2, &u3}
+	// err := BatchInsertUsers3(u)
+	// if err != nil {
 	//	fmt.Println(err)
-	//}
-	u,err := QueryByIDs([]int{1,3,8,10,11})
+	// }
+	u, err := QueryByIDs([]int{1, 3, 8, 10, 11})
 	if err != nil {
 		fmt.Println(err)
 	}
