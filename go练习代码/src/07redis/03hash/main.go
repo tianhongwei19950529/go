@@ -19,6 +19,7 @@ import (
 // rdb.HMGet()	批量查询hash字段值
 // rdb.HSetNX()	如果字段field不存在，则设置 hash 字段值
 // rdb.HDel()	// 根据key和字段名，删除hash字段. 支持批量删除
+// rdb.HExists()	// 根据查询Key的字段名是否存在
 
 var rdb *redis.Client
 
